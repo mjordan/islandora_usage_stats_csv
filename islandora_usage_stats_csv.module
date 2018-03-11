@@ -1,0 +1,72 @@
+<?php
+
+/**
+ * @file
+ * The main Islandora Usage Stats Charts module file.
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function islandora_usage_stats_csv_permission() {
+  return array(
+    'download islandora usage stats data' => array(
+      'title' => t('Download object-level usage stats data'),
+      'description' => t('Download object-level usage stats data'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function islandora_usage_stats_csv_menu() {
+  $items['islandora/object/%islandora_object/usage_stats_csv'] = array(
+    'page callback' => 'islandora_usage_stats_csv_download_csv',
+    'page arguments' => array(2),
+    // Access control is handled in the callback so we can respond with
+    // just a 403 and no HTML markup.
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+function islandora_usage_stats_csv_download_csv($object) {
+  if (!islandora_object_access('download islandora usage stats data', $object)) {
+    drupal_add_http_header('Status', '403 Forbidden');
+    exit();
+  }
+
+  global $base_url;
+  module_load_include('inc', 'islandora_usage_stats_csv', 'includes/utilities');
+  $views_data = islandora_usage_stats_csv_generate_views_stats($object->id);
+  $csv_rows = array();
+
+  // Header and object rows.
+  $headers = array('Type', 'Title', 'URL');
+  $headers = array_merge($headers, array_keys($views_data));
+  $object_row = array('Item', $object->label, $base_url . '/islandora/object/' . $object->id);
+  $object_row = array_merge($object_row, array_values($views_data));
+  $csv_rows[] = $headers;
+  $csv_rows[] = $object_row;
+
+  // Downloads rows.
+  // @todo.
+
+  // Assemble CSV file and prepare it for download.
+  $csv_pointer = fopen('php://temp', 'w+');
+  foreach ($csv_rows as $fields) {
+    fputcsv($csv_pointer, $fields);
+  }
+  rewind($csv_pointer);
+  $csv_output = stream_get_contents($csv_pointer);
+  fclose($csv_pointer);
+
+  drupal_add_http_header('Content-type', 'text/csv;charset=utf8');
+  drupal_add_http_header('Content-length', strlen($csv_output));
+  $filename = 'usage_stats.csv';
+  drupal_add_http_header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+  print $csv_output;
+  drupal_page_footer();
+}
