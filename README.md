@@ -2,7 +2,14 @@
 
 ## Overview
 
-Provides a CSV file containing all stats for an object collected by [Islandora Usage Stats](https://github.com/Islandora/islandora_usage_stats).
+Provides a CSV file containing all stats for an object collected by [Islandora Usage Stats](https://github.com/Islandora/islandora_usage_stats). This file includes the number of time the object was viewed and the total number times the object's datastreams were downloaded, broken down by month, e.g.:
+
+```
+Type,Title,URL,2017-10,2017-11,2018-01,2018-03
+Views,"Hastings Street, Vancouver, B.C.",http://localhost:8000/islandora/object/islandora:7,0,1,0,270
+Downloads,,,2,2,1,14
+```
+
 
 ## Dependencies
 

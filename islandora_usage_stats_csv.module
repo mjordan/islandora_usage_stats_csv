@@ -32,6 +32,9 @@ function islandora_usage_stats_csv_menu() {
   return $items;
 }
 
+/**
+ * Gets usage data and prepare it for download.
+ */
 function islandora_usage_stats_csv_download_csv($object) {
   if (!islandora_object_access('download islandora usage stats data', $object)) {
     drupal_add_http_header('Status', '403 Forbidden');
@@ -41,18 +44,46 @@ function islandora_usage_stats_csv_download_csv($object) {
   global $base_url;
   module_load_include('inc', 'islandora_usage_stats_csv', 'includes/utilities');
   $views_data = islandora_usage_stats_csv_generate_views_stats($object->id);
+  $downloads_data = islandora_usage_stats_csv_generate_downloads_stats($object->id);
   $csv_rows = array();
 
-  // Header and object rows.
+  // Assemble header row.
+  $views_months = array_keys($views_data);
+  $downloads_months = array_keys($downloads_data);
+  $months = array_merge($views_months, $downloads_months);
+  $months = array_unique($months);
+  sort($months, SORT_NATURAL);
   $headers = array('Type', 'Title', 'URL');
-  $headers = array_merge($headers, array_keys($views_data));
-  $object_row = array('Item', $object->label, $base_url . '/islandora/object/' . $object->id);
-  $object_row = array_merge($object_row, array_values($views_data));
+  $headers = array_merge($headers, $months);
   $csv_rows[] = $headers;
-  $csv_rows[] = $object_row;
 
-  // Downloads rows.
-  // @todo.
+  // Add views data.
+  $views_row = array(
+    'Views',
+    $object->label,
+    $base_url . '/islandora/object/' . $object->id,
+  );
+  foreach ($months as $month) {
+    if (in_array($month, array_keys($views_data))) {
+      $views_row[] = $views_data[$month];
+    }
+    else {
+      $views_row[] = '0';
+    }
+  }
+  $csv_rows[] = $views_row;
+
+  // Add downloads data.
+  $downloads_row = array('Downloads', '', '');
+  foreach ($months as $month) {
+    if (in_array($month, array_keys($downloads_data))) {
+      $downloads_row[] = $downloads_data[$month];
+    }
+    else {
+      $downloads_row[] = '0';
+    }
+  }
+  $csv_rows[] = $downloads_row;
 
   // Assemble CSV file and prepare it for download.
   $csv_pointer = fopen('php://temp', 'w+');
@@ -63,7 +94,7 @@ function islandora_usage_stats_csv_download_csv($object) {
   $csv_output = stream_get_contents($csv_pointer);
   fclose($csv_pointer);
 
-  drupal_add_http_header('Content-type', 'text/csv;charset=utf8');
+  drupal_add_http_header('Content-type', 'text/csv');
   drupal_add_http_header('Content-length', strlen($csv_output));
   $filename = 'usage_stats.csv';
   drupal_add_http_header('Content-Disposition', 'attachment; filename="' . $filename . '"');
