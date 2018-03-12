@@ -24,6 +24,11 @@ function islandora_usage_stats_csv_generate_views_stats($pid) {
       $views_data[$date] = 1;
     }
   }
+  // Total all values up.
+  foreach ($views_data as $month => $count) {
+    $total = $total + $count;
+  }
+  $views_data['Total'] = $total;
   return $views_data;
 }
 
@@ -43,6 +48,11 @@ function islandora_usage_stats_csv_generate_downloads_stats($pid) {
       $downloads_data[$date] = 1;
     }
   }
+  // Total all values up.
+  foreach ($downloads_data as $month => $count) {
+    $total = $total + $count;
+  }
+  $downloads_data['Total'] = $total;
   return $downloads_data;
 }
 
@@ -57,7 +67,6 @@ function islandora_usage_stats_csv_generate_downloads_per_ds_stats($pid) {
   $downloads_data = array();
 
   foreach ($downloads_result as $row) {
-    dd($row, 'Row');
     $date = date("Y-m", $row->time);
     $dsid = $row->dsid;
     if (!array_key_exists($dsid, $downloads_data)) {
@@ -73,7 +82,16 @@ function islandora_usage_stats_csv_generate_downloads_per_ds_stats($pid) {
 
   }
 
-  // dd($downloads_data);
+  // Total all values up.
+  $tmp_downloads_data = $downloads_data;
+  foreach ($tmp_downloads_data as $dsid => $months) {
+    $total = 0;
+    foreach ($months as $month => $count) {
+      $total = $total + $count;
+    }
+    $downloads_data[$dsid]['Total'] = $total;
+  }
+
   return $downloads_data;
 }
 
