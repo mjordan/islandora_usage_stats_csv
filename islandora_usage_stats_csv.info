@@ -1,5 +1,5 @@
-name = "Islandora Usage Stats Charts"
-description = "Module that provides object-level display of usage stats using chart."
+name = "Islandora Usage Stats CSV"
+description = "Module that provides an object-level CSV file of usage stats."
 version = 7.x-dev
 core = 7.x
 package = Islandora Tools
