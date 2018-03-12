@@ -55,6 +55,8 @@ function islandora_usage_stats_csv_admin_settings() {
 }
 
 /**
+ * Menu item callback.
+ *
  * Gets usage data and prepare it for download.
  */
 function islandora_usage_stats_csv_download_csv($object) {
@@ -63,113 +65,9 @@ function islandora_usage_stats_csv_download_csv($object) {
     exit();
   }
 
-  global $base_url;
   module_load_include('inc', 'islandora_usage_stats_csv', 'includes/utilities');
-  $views_data = islandora_usage_stats_csv_generate_views_stats($object->id);
-  $csv_rows = array();
-
-  if (variable_get('islandora_usage_stats_csv_per_ds', 1)) {
-    $dsids_downloads_data = islandora_usage_stats_csv_generate_downloads_per_ds_stats($object->id);
-    $download_months = array();
-    foreach ($dsids_downloads_data as $dsid => $dates) {
-      $dsid_months = array_keys($dates);
-      $download_months = array_merge($download_months, $dsid_months);
-    }
-  }
-  else {
-    $downloads_data = islandora_usage_stats_csv_generate_downloads_stats($object->id);
-    $downloads_months = array_keys($downloads_data);
-  }
-
-  // Assemble header row.
-  $views_months = array_keys($views_data);
-  $months = array_merge($views_months, $downloads_months);
-  $months = array_unique($months);
-  sort($months, SORT_NATURAL);
-  dd($months, "Months");
-  $headers = array('Type', 'Title', 'URL');
-  $headers = array_merge($headers, $months);
-  $csv_rows[] = $headers;
-
-  // Add views data.
-  $views_row = array(
-    'Views',
-    $object->label,
-    $base_url . '/islandora/object/' . $object->id,
-  );
-  foreach ($months as $month) {
-    if (in_array($month, array_keys($views_data))) {
-      $views_row[] = $views_data[$month];
-    }
-    else {
-      $views_row[] = '0';
-    }
-  }
-  $csv_rows[] = $views_row;
-
-  // Add downloads data.
-  if (variable_get('islandora_usage_stats_csv_per_ds', 1)) {
-/*
-DSID specific download data: Array
-(
-    [OBJ] => Array
-        (
-            [2017-10] => 2
-            [2017-11] => 2
-            [2018-01] => 1
-            [2018-03] => 17
-        )
-
-    [TN] => Array
-        (
-            [2017-10] => 2
-            [2017-11] => 2
-            [2018-01] => 1
-            [2018-03] => 17
-        )
-
-)
-*/
-
-    foreach ($dsids_downloads_data as $dsid => $dates) {
-      $downloads_row = array(
-        'Downloads',
-        '',
-        $base_url . '/islandora/object/' . $object->id . '/datastream/' . $dsid . '/download',
-      );
-      dd($dates, 'Dates');
-      foreach ($months as $month) {
-        if (in_array($month, array_keys($dates))) {
-          $downloads_row[] = $dsid_downloads_data[$dsid][$month];
-        }
-        else {
-          $downloads_row[] = '0';
-        }
-      }
-      $csv_rows[] = $downloads_row;
-    }
-  }
-  else {
-    $downloads_row = array('Downloads', '', '');
-    foreach ($months as $month) {
-      if (in_array($month, array_keys($downloads_data))) {
-        $downloads_row[] = $downloads_data[$month];
-      }
-      else {
-        $downloads_row[] = '0';
-      }
-    }
-    $csv_rows[] = $downloads_row;
-  }
-
-  // Assemble CSV file and prepare it for download.
-  $csv_pointer = fopen('php://temp', 'w+');
-  foreach ($csv_rows as $fields) {
-    fputcsv($csv_pointer, $fields);
-  }
-  rewind($csv_pointer);
-  $csv_output = stream_get_contents($csv_pointer);
-  fclose($csv_pointer);
+  $per_ds = variable_get('islandora_usage_stats_csv_per_ds', 1);
+  $csv_output = islandora_usage_stats_csv_generate_csv($object, $per_ds);
 
   drupal_add_http_header('Content-type', 'text/csv');
   drupal_add_http_header('Content-length', strlen($csv_output));
