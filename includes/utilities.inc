@@ -58,28 +58,34 @@ function islandora_usage_stats_csv_generate_downloads_stats($pid) {
 
 /**
  * Retrieve usage data for each downloaded datastream from the db.
- *
- * This is not working as intended. See https://git.lib.sfu.ca/mjordan/islandora_usage_stats_csv/issues/1.
  */
 function islandora_usage_stats_csv_generate_downloads_per_ds_stats($pid) {
   $access_log_id = islandora_usage_stats_csv_get_object_access_id($pid);
-  $downloads_result = db_query("SELECT dsid, time FROM {islandora_usage_stats_datastreams}, {islandora_usage_stats_object_ds_access_log} WHERE {islandora_usage_stats_datastreams}.pid_id = :pid_id", array(':pid_id' => $access_log_id));
+  $object = islandora_object_load($pid);
+  $datastream_ids = array();
+  $datastreams_to_skip = explode(',', variable_get('islandora_usage_stats_csv_dsids_to_skip', 'RELS-EXT,RELS-INT'));
+  foreach ($object as $ds) {
+    if (!in_array($ds->id, $datastreams_to_skip)) {
+      $datastream_ids[] = $ds->id;
+    }
+  }
+ 
   $downloads_data = array();
+  foreach ($datastream_ids as $dsid) {
+    $downloads_result = db_query("SELECT time FROM {islandora_usage_stats_datastreams}, {islandora_usage_stats_object_ds_access_log} WHERE {islandora_usage_stats_datastreams}.pid_id = :pid_id AND dsid = :dsid AND {islandora_usage_stats_object_ds_access_log}.ds_id = {islandora_usage_stats_datastreams}.id", array(':pid_id' => $access_log_id, ':dsid' => $dsid));
+    foreach ($downloads_result as $row) {
+      $date = date("Y-m", $row->time);
+      if (!array_key_exists($dsid, $downloads_data)) {
+        $downloads_data[$dsid] = array();
+      }
 
-  foreach ($downloads_result as $row) {
-    $date = date("Y-m", $row->time);
-    $dsid = $row->dsid;
-    if (!array_key_exists($dsid, $downloads_data)) {
-      $downloads_data[$dsid] = array();
+      if (array_key_exists($date, $downloads_data[$dsid])) {
+        $downloads_data[$dsid][$date]++;
+      }
+      else {
+        $downloads_data[$dsid][$date] = 1;
+      }
     }
-
-    if (array_key_exists($date, $downloads_data[$dsid])) {
-      $downloads_data[$dsid][$date]++;
-    }
-    else {
-      $downloads_data[$dsid][$date] = 1;
-    }
-
   }
 
   // Total all values up.
