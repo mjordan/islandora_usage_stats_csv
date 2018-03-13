@@ -25,6 +25,7 @@ function islandora_usage_stats_csv_generate_views_stats($pid) {
     }
   }
   // Total all values up.
+  $total = 0;
   foreach ($views_data as $month => $count) {
     $total = $total + $count;
   }
@@ -49,6 +50,7 @@ function islandora_usage_stats_csv_generate_downloads_stats($pid) {
     }
   }
   // Total all values up.
+  $total = 0;
   foreach ($downloads_data as $month => $count) {
     $total = $total + $count;
   }
