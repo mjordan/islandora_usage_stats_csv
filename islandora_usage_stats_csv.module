@@ -85,7 +85,8 @@ function islandora_usage_stats_csv_download_csv($object) {
 
   drupal_add_http_header('Content-type', 'text/csv');
   drupal_add_http_header('Content-length', strlen($csv_output));
-  $filename = 'usage_stats.csv';
+  $pid_for_filename = preg_replace('/:/', '_', $object->id);
+  $filename = 'usage_stats_' . $pid_for_filename . '.csv';
   drupal_add_http_header('Content-Disposition', 'attachment; filename="' . $filename . '"');
   print $csv_output;
   drupal_page_footer();
