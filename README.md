@@ -10,7 +10,6 @@ Views,"Hastings Street, Vancouver, B.C.",http://localhost:8000/islandora/object/
 Downloads,,,2,2,1,14
 ```
 
-
 ## Dependencies
 
 * [Islandora](https://github.com/Islandora/islandora)
@@ -22,7 +21,9 @@ Install as usual, see [this](https://drupal.org/documentation/install/modules-th
 
 ## Configuration
 
-This module has no configuration options.
+This module's configuration options are available at `admin/islandora/tools/islandora_usage_stats_csv`.
+
+## Maintainer
 
 * [Mark Jordan](https://github.com/mjordan)
 

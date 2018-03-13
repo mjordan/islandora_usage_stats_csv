@@ -71,7 +71,7 @@ function islandora_usage_stats_csv_generate_downloads_per_ds_stats($pid) {
       $datastream_ids[] = $ds->id;
     }
   }
- 
+
   $downloads_data = array();
   foreach ($datastream_ids as $dsid) {
     $downloads_result = db_query("SELECT time FROM {islandora_usage_stats_datastreams}, {islandora_usage_stats_object_ds_access_log} WHERE {islandora_usage_stats_datastreams}.pid_id = :pid_id AND dsid = :dsid AND {islandora_usage_stats_object_ds_access_log}.ds_id = {islandora_usage_stats_datastreams}.id", array(':pid_id' => $access_log_id, ':dsid' => $dsid));
@@ -138,13 +138,14 @@ function islandora_usage_stats_csv_generate_csv($object, $per_ds = FALSE) {
   $months = array_merge($views_months, $downloads_months);
   $months = array_unique($months);
   sort($months, SORT_NATURAL);
-  $headers = array('Usage type', 'Title', 'URL');
+  $views_label = variable_get('islandora_usage_stats_csv_object_views_label', 'Item');
+  $headers = array('Usage type', $views_label, 'URL');
   $headers = array_merge($headers, $months);
   $csv_rows[] = $headers;
 
   // Add views usage data.
   $views_row = array(
-    'Views',
+    variable_get('islandora_usage_stats_csv_object_views_label', 'Item'),
     $object->label,
     $base_url . '/islandora/object/' . $object->id,
   );

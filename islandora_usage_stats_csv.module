@@ -45,6 +45,13 @@ function islandora_usage_stats_csv_menu() {
  */
 function islandora_usage_stats_csv_admin_settings() {
   $form = array();
+  $form['islandora_usage_stats_csv_object_views_label'] = array(
+    '#type' => 'textfield',
+    '#size' => '10',
+    '#title' => t('Label to use for object views'),
+    '#default_value' => variable_get('islandora_usage_stats_csv_object_views_label', 'Item'),
+    '#description' => t("The word describing object views, e.g., Object, Record, Item."),
+  );
   $form['islandora_usage_stats_csv_per_ds'] = array(
     '#type' => 'checkbox',
     '#title' => t('Provide datastream-level download statistics'),
