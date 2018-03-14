@@ -15,6 +15,7 @@ function islandora_usage_stats_csv_generate_views_stats($pid) {
     ->condition('pid_id', $access_log_id)
     ->execute();
   $views_data = array();
+
   foreach ($views_result as $row) {
     $date = date("Y-m", $row->time);
     if (array_key_exists($date, $views_data)) {
@@ -24,6 +25,12 @@ function islandora_usage_stats_csv_generate_views_stats($pid) {
       $views_data[$date] = 1;
     }
   }
+
+  // Define an alter hook to allow third-party modules to add data from other
+  // sources (e.g. gathered outside of Islandora) and merge them with $output.
+  $context = array('pid' => $pid, 'type' => 'views');
+  drupal_alter('islandora_usage_stats_csv_usage', $views_data, $context);
+
   // Total all values up.
   $total = 0;
   foreach ($views_data as $month => $count) {
@@ -49,6 +56,12 @@ function islandora_usage_stats_csv_generate_downloads_stats($pid) {
       $downloads_data[$date] = 1;
     }
   }
+
+  // Define an alter hook to allow third-party modules to add data from other
+  // sources (e.g. gathered outside of Islandora) and merge them with $output.
+  $context = array('pid' => $pid, 'type' => 'downloads');
+  drupal_alter('islandora_usage_stats_csv_usage', $downloads_data, $context);
+
   // Total all values up.
   $total = 0;
   foreach ($downloads_data as $month => $count) {
@@ -90,6 +103,11 @@ function islandora_usage_stats_csv_generate_downloads_per_ds_stats($pid) {
     }
   }
 
+  // Define an alter hook to allow third-party modules to add data from other
+  // sources (e.g. gathered outside of Islandora) and merge them with $output.
+  $context = array('pid' => $pid, 'type' => 'downloads_per_ds');
+  drupal_alter('islandora_usage_stats_csv_usage', $downloads_data, $context);
+
   // Total all values up.
   $tmp_downloads_data = $downloads_data;
   foreach ($tmp_downloads_data as $dsid => $months) {
@@ -118,6 +136,7 @@ function islandora_usage_stats_csv_generate_downloads_per_ds_stats($pid) {
 function islandora_usage_stats_csv_generate_csv($object, $per_ds = FALSE) {
   global $base_url;
   $views_data = islandora_usage_stats_csv_generate_views_stats($object->id);
+  dd($views_data, 'Views data');
   $csv_rows = array();
 
   if (variable_get('islandora_usage_stats_csv_per_ds', 1)) {

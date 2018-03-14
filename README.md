@@ -24,6 +24,10 @@ Install as usual, see [this](https://drupal.org/documentation/install/modules-th
 
 This module's configuration options are available at `admin/islandora/tools/islandora_usage_stats_csv`.
 
+## Altering usage data
+
+This module defines a Drupal alter hook that allows third-party modules to alter usage data for objects, for example to combine usage data from an external source with the data collected in Islandora Usage Stats database, or to filter out unwanted data. See `islandora_usage_stats_csv.api.php` for more information.
+
 ## Maintainer
 
 * [Mark Jordan](https://github.com/mjordan)
