@@ -41,11 +41,18 @@ function islandora_usage_stats_csv_generate_views_stats($pid) {
 }
 
 /**
- * Retrieve usage data for all datastream downloads from the db.
+ * Retrieve usage data for datastream downloads from the db.
  */
 function islandora_usage_stats_csv_generate_downloads_stats($pid) {
   $access_log_id = islandora_usage_stats_csv_get_object_access_id($pid);
-  $downloads_result = db_query("SELECT time FROM {islandora_usage_stats_datastreams}, {islandora_usage_stats_object_ds_access_log} WHERE {islandora_usage_stats_datastreams}.pid_id = :pid_id", array(':pid_id' => $access_log_id));
+  $dsids_to_exclude = variable_get('islandora_usage_stats_csv_dsids_to_skip', 'RELS-EXT,RELS-INT,TECHMD,MODS,DC');
+  if (strlen($dsids_to_exclude)) {
+    $dsids_to_exclude_array = explode(',', $dsids_to_exclude);
+    $downloads_result = db_query("SELECT time FROM {islandora_usage_stats_datastreams}, {islandora_usage_stats_object_ds_access_log} WHERE {islandora_usage_stats_datastreams}.pid_id = :pid_id AND dsid NOT IN (:excluded_dsids)", array(':pid_id' => $access_log_id, ':excluded_dsids' => $dsids_to_exclude_array));
+  }
+  else {
+    $downloads_result = db_query("SELECT time FROM {islandora_usage_stats_datastreams}, {islandora_usage_stats_object_ds_access_log} WHERE {islandora_usage_stats_datastreams}.pid_id = :pid_id", array(':pid_id' => $access_log_id));
+  }
   $downloads_data = array();
   foreach ($downloads_result as $row) {
     $date = date("Y-m", $row->time);
@@ -72,7 +79,14 @@ function islandora_usage_stats_csv_generate_downloads_stats($pid) {
 }
 
 /**
- * Retrieve usage data for each downloaded datastream from the db.
+ * Retrieve usage data for datastream downloads from the db.
+ *
+ * @param string $pid
+ *   The PID of the object.
+ *
+ * @return array
+ *   An array containing DSIDs as its keys, each of which is an array
+ *   of yyyy-mm => count.
  */
 function islandora_usage_stats_csv_generate_downloads_per_ds_stats($pid) {
   $access_log_id = islandora_usage_stats_csv_get_object_access_id($pid);
@@ -100,6 +114,7 @@ function islandora_usage_stats_csv_generate_downloads_per_ds_stats($pid) {
       else {
         $downloads_data[$dsid][$date] = 1;
       }
+
     }
   }
 
