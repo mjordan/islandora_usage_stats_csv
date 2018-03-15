@@ -46,12 +46,12 @@ function islandora_usage_stats_csv_generate_views_stats($pid) {
 function islandora_usage_stats_csv_generate_downloads_stats($pid) {
   $access_log_id = islandora_usage_stats_csv_get_object_access_id($pid);
   $dsids_to_exclude = variable_get('islandora_usage_stats_csv_dsids_to_skip', 'RELS-EXT,RELS-INT,TECHMD,MODS,DC');
-  if (strlen($dsids_to_exclude) == 0) {
-    $downloads_result = db_query("SELECT time FROM {islandora_usage_stats_datastreams}, {islandora_usage_stats_object_ds_access_log} WHERE {islandora_usage_stats_datastreams}.pid_id = :pid_id", array(':pid_id' => $access_log_id));
-  }
-  else {
+  if (strlen($dsids_to_exclude)) {
     $dsids_to_exclude_array = explode(',', $dsids_to_exclude);
     $downloads_result = db_query("SELECT time FROM {islandora_usage_stats_datastreams}, {islandora_usage_stats_object_ds_access_log} WHERE {islandora_usage_stats_datastreams}.pid_id = :pid_id AND dsid NOT IN (:excluded_dsids)", array(':pid_id' => $access_log_id, ':excluded_dsids' => $dsids_to_exclude_array));
+  }
+  else {
+    $downloads_result = db_query("SELECT time FROM {islandora_usage_stats_datastreams}, {islandora_usage_stats_object_ds_access_log} WHERE {islandora_usage_stats_datastreams}.pid_id = :pid_id", array(':pid_id' => $access_log_id));
   }
   $downloads_data = array();
   foreach ($downloads_result as $row) {
