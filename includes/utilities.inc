@@ -136,7 +136,6 @@ function islandora_usage_stats_csv_generate_downloads_per_ds_stats($pid) {
 function islandora_usage_stats_csv_generate_csv($object, $per_ds = FALSE) {
   global $base_url;
   $views_data = islandora_usage_stats_csv_generate_views_stats($object->id);
-  dd($views_data, 'Views data');
   $csv_rows = array();
 
   if (variable_get('islandora_usage_stats_csv_per_ds', 1)) {
