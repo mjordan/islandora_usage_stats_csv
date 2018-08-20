@@ -22,7 +22,12 @@ Install as usual, see [this](https://drupal.org/documentation/install/modules-th
 
 ## Configuration
 
-This module's configuration options are available at `admin/islandora/tools/islandora_usage_stats_csv`.
+Configuration options are available at `admin/islandora/tools/islandora_usage_stats_csv`. Also be sure to enable the "Download object-level usage stats data" permission for suitable roles.
+
+There are two ways to provide the link to each object's usage stats CSV file:
+
+1. Enable the "Islandora Usage Stats CSV link" block and then in the admin settings, configure which content models you want the block to show up on.
+1. From within Islandora Usage Stats Charts' admin settings, check the "Provide a link to download usage stats CSV file".
 
 ## Altering usage data
 
