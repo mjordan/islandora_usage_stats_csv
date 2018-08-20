@@ -27,7 +27,7 @@ Configuration options are available at `admin/islandora/tools/islandora_usage_st
 There are two ways to provide the link to each object's usage stats CSV file:
 
 1. Enable the "Islandora Usage Stats CSV link" block and then in the admin settings, configure which content models you want the block to show up on.
-1. From within Islandora Usage Stats Charts' admin settings, check the "Provide a link to download usage stats CSV file".
+1. If used in conjuction with [Islandora Usage Stats Charts](https://github.com/mjordan/islandora_usage_stats_charts), in that module's admin settings, check the "Provide a link to download usage stats CSV file", which will render the link at the bottom of the usage stats chart.
 
 ## Altering usage data
 
