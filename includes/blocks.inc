@@ -21,8 +21,9 @@ function islandora_usage_stats_csv_block_info() {
  * Implements hook_block_view().
  */
 function islandora_usage_stats_csv_block_view($delta = '') {
+  $block = array();
   $object = menu_get_object('islandora_object', 2);
-  if ($object) {
+  if ($delta == 'object' && $object) {
     module_load_include('inc', 'islandora_usage_stats_csv', 'includes/utilities');
     $allowed_cmodels = islandora_usage_stats_csv_check_for_cmodels($object);
     if ($delta == 'object') {
