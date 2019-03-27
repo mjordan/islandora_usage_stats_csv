@@ -30,7 +30,7 @@ function islandora_usage_stats_csv_block_view($delta = '') {
       if ($object && count($allowed_cmodels) > 0 && arg(3) != 'manage') {
         if (islandora_object_access('download islandora usage stats data', $object)) {
           $link_title = variable_get('islandora_usage_stats_csv_download_text', 'Download CSV containing full usage stats');
-          $csv_link = l(t($link_title), '/islandora/object/' . $object->id . '/usage_stats_csv');
+          $csv_link = l($link_title, '/islandora/object/' . $object->id . '/usage_stats_csv');
           $block['subject'] = t('Usage Statistics');
           $block['content'] = $csv_link;
         }
